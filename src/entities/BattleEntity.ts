@@ -5,7 +5,7 @@ export class BattleStats {
     inBattle: boolean = false;
 
     constructor() {
-        this.hp = 100;
+        this.hp = 99;
         this.ap = 0;
         this.apRate = 0.004;
     }
@@ -19,6 +19,7 @@ export class BattleStats {
 export interface BattleEntity {
     ax: number;
     ay: number;
+    isFriendly: boolean;
     formationXOffset: number;
     formationYOffset: number;
     stats: BattleStats;

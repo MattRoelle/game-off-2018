@@ -9,6 +9,7 @@ export class Enemy extends Phaser.GameObjects.Sprite implements BattleEntity {
     set ax(v: number) { this.x = v; }
     get ay(): number { return this.y; }
     set ay(v: number) { this.y = v; }
+    isFriendly: boolean = false;
     formationXOffset: number;
     formationYOffset: number;
     stats: BattleStats = new BattleStats();
@@ -19,6 +20,7 @@ export class Enemy extends Phaser.GameObjects.Sprite implements BattleEntity {
         scene.add.existing(this);
         this.depth = 50;
         this.anims.play(info.key + "_idle");
+        this.stats.apRate = 0;
     }
 
     preUpdate(t: number, delta: number) {

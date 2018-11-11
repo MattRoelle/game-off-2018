@@ -3,12 +3,14 @@ import { Enemy } from "../entities/Enemy";
 import { BattleEntity } from "../entities/BattleEntity";
 import helpers from "../helpers";
 import { BattleSystem } from "../systems/BattleSystem";
+import { RadialUi, RadialUiConfig } from "../entities/RadialUi";
 
 export class MainScene extends Phaser.Scene {
     player: Player;
     party: Player[];
     enemies: BattleEntity[];
     battle: BattleSystem;
+    rui: RadialUi;
 
     constructor() {
         super({
@@ -22,6 +24,8 @@ export class MainScene extends Phaser.Scene {
         this.load.image("battleui_base", "/assets/battleui_base.png");
         this.load.image("battleui_outline", "/assets/battleui_outline.png");
         this.load.image("shadow", "/assets/shadow.png");
+        this.load.image("radialui", "/assets/radialui.png");
+        this.load.image("ico_atk", "/assets/ico_atk.png");
         this.load.image("octocat1", "/assets/octocat.png");
         this.load.image("octocat2", "/assets/octocat2.png");
         this.load.image("octocat3", "/assets/octocat3.png");

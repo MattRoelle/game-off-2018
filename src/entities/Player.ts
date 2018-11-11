@@ -26,6 +26,7 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
     set ax(v: number) { this.container.x = v; }
     get ay(): number { return this.container.y; }
     set ay(v: number) { this.container.y = v; }
+    isFriendly: boolean = true;
     formationXOffset: number;
     formationYOffset: number;
     stats: BattleStats = new BattleStats();
@@ -51,6 +52,7 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
         if (this.info.partyIdx == 0) {
             this.formationXOffset = 0;
             this.formationYOffset = 0;
+            this.stats.apRate = 0.01;
         }
 
         if (this.info.partyIdx == 1) {
