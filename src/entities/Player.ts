@@ -21,7 +21,10 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
     targetAngle: number;
     flying: boolean;
     followMove: boolean;
+    isCasting: boolean;
 
+    get aangle(): number { return this.container.angle; }
+    set aangle(v: number) { this.container.angle = v; }
     get ax(): number { return this.container.x; }
     set ax(v: number) { this.container.x = v; }
     get ay(): number { return this.container.y; }
@@ -32,7 +35,7 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
     stats: BattleStats = new BattleStats();
 
     constructor(scene: Phaser.Scene, public info: PlayerInfo) {
-        super(scene, 0, 0, info.key);
+        super(scene, 0, 0, info.key, 0);
         scene.anims.create({
             key: "hover_flame",
             frames: scene.anims.generateFrameNumbers("hover_flame", { start: 0, end: 40, }),
@@ -52,13 +55,13 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
         if (this.info.partyIdx == 0) {
             this.formationXOffset = 0;
             this.formationYOffset = 0;
-            this.stats.apRate = 0.01;
+            this.stats.apRate = 0.003;
         }
 
         if (this.info.partyIdx == 1) {
             this.formationXOffset = -80;
             this.formationYOffset = 20;
-            this.stats.apRate = 0.003;
+            this.stats.apRate = 0.007;
         }
 
         if (this.info.partyIdx == 2) {
@@ -109,12 +112,36 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
 
         this.boostFlame.alpha =  0;
         
-        this.y = helpers.lerp(
-            this.y,
-            this.flying ?
-                -10 + Math.sin((this.scene.time.now + this.info.partyIdx*300)*(this.stats.inBattle ? 0.004 : 0.01))*5
-                :
-                0,
-        0.15);
+        if (this.isCasting) {
+            this.x = helpers.lerp(
+                this.x,
+                Math.sin(this.scene.time.now*0.03)*10,
+                0.15
+            );
+            this.y = helpers.lerp(this.y, 0, 0.15);
+        } else {
+            this.x = helpers.lerp(this.x, 0, 0.15);
+            this.y = helpers.lerp(
+                this.y,
+                this.flying ?
+                    -10 + Math.sin((this.scene.time.now + this.info.partyIdx*300)*(this.stats.inBattle ? 0.004 : 0.01))*5
+                    :
+                    0,
+            0.15);
+        }
+    }
+
+    hit(): void {
+
+    }
+
+    casting(): void {
+        this.setTexture(this.texture.key, 1);
+        this.isCasting = true;
+    }
+
+    reset(): void {
+        this.setTexture(this.texture.key, 0);
+        this.isCasting = false;
     }
 }

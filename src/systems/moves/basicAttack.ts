@@ -4,22 +4,40 @@ export default (scene: Phaser.Scene, entityA: BattleEntity, entityB: BattleEntit
     const ogx = entityA.ax;
     const ogy = entityA.ay;
 
+    const left = entityA.ax < entityB.ax;
+    const up = entityA.ay < entityB.ay;
+
     scene.tweens.add({
         targets: entityA,
-        ax: entityB.ax,
-        ay: entityB.ay,
-        duration: 500,
+        aangle: left ? -40 : 40,
+        duration: 400,
+        ay: ogy + (up ? -20 : 20),
+        ax: ogx + (left ? -20 : 20),
         ease: "Power2.easeOut",
         onComplete: () => {
+            setTimeout(() => {
+                entityB.hit();
+            }, 200);
             scene.tweens.add({
                 targets: entityA,
-                ax: ogx,
-                ay: ogy,
+                ax: entityB.ax,
+                ay: entityB.ay,
+                aangle: left ? 20 : -20,
                 duration: 500,
-                ease: "Power2.easeOut",
+                ease: "Bounce.easeOut",
                 onComplete: () => {
-                    entityA.stats.ap = 0;
-                    onComplete();
+                    scene.tweens.add({
+                        targets: entityA,
+                        ax: ogx,
+                        ay: ogy,
+                        aangle: 0,
+                        duration: 500,
+                        ease: "Power2.easeOut",
+                        onComplete: () => {
+                            entityA.stats.ap = 0;
+                            onComplete();
+                        }
+                    });
                 }
             });
         }

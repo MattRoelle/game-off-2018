@@ -59,7 +59,7 @@ export class RadialUi extends Phaser.GameObjects.Container {
             targets: this,
             scaleX: 1,
             scaleY: 1,
-            duration: 900,
+            duration: 600,
             ease: "Bounce.easeOut"
         });
     }

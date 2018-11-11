@@ -5,6 +5,12 @@ export interface EnemyInfo {
 }
 
 export class Enemy extends Phaser.GameObjects.Sprite implements BattleEntity {
+    casting(): void {
+    }
+    reset(): void {
+    }
+    get aangle(): number { return this.angle; }
+    set aangle(v: number) { this.angle = v; }
     get ax(): number { return this.x; }
     set ax(v: number) { this.x = v; }
     get ay(): number { return this.y; }
@@ -25,5 +31,28 @@ export class Enemy extends Phaser.GameObjects.Sprite implements BattleEntity {
 
     preUpdate(t: number, delta: number) {
         super.preUpdate(t, delta);
+    }
+
+    hit(): void {
+        const ogx = this.ax;
+        this.scene.tweens.add({
+            targets: this,
+            duration: 70,
+            ax: ogx - 5,
+            onComplete: () => {
+                this.scene.tweens.add({
+                    targets: this,
+                    duration: 70,
+                    ax: ogx + 5,
+                    onComplete: () => {
+                        this.scene.tweens.add({
+                            targets: this,
+                            duration: 40,
+                            ax: ogx,
+                        });
+                    }
+                });
+            }
+        });
     }
 }

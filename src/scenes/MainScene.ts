@@ -11,6 +11,8 @@ export class MainScene extends Phaser.Scene {
     enemies: BattleEntity[];
     battle: BattleSystem;
     rui: RadialUi;
+    tilebg: Phaser.GameObjects.TileSprite;
+    tilebg2: Phaser.GameObjects.TileSprite;
 
     constructor() {
         super({
@@ -19,6 +21,8 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload() {
+        this.load.image("tilebg", "/assets/tilebg.png");
+        this.load.image("tilebg2", "/assets/tilebg2.png");
         this.load.image("battleui_fg", "/assets/battleui_fg.png");
         this.load.image("battleui_ap", "/assets/battleui_ap.png");
         this.load.image("battleui_base", "/assets/battleui_base.png");
@@ -26,9 +30,23 @@ export class MainScene extends Phaser.Scene {
         this.load.image("shadow", "/assets/shadow.png");
         this.load.image("radialui", "/assets/radialui.png");
         this.load.image("ico_atk", "/assets/ico_atk.png");
-        this.load.image("octocat1", "/assets/octocat.png");
-        this.load.image("octocat2", "/assets/octocat2.png");
-        this.load.image("octocat3", "/assets/octocat3.png");
+        this.load.image("ico_def", "/assets/ico_def.png");
+        this.load.image("ico_pentest", "/assets/ico_pentest.png");
+        this.load.image("pen_arrow1", "/assets/pen_arrow.png");
+        this.load.image("pen_arrow2", "/assets/pen_arrow2.png");
+        this.load.image("pen_arrow3", "/assets/pen_arrow3.png");
+
+        const octoConf = {
+            startFrame: 0,
+            endFrame: 1,
+            frameWidth: 40,
+            frameHeight: 40
+        };
+
+        this.load.spritesheet("octocat1", "/assets/octocat.png", octoConf);
+        this.load.spritesheet("octocat2", "/assets/octocat.png", octoConf);
+        this.load.spritesheet("octocat3", "/assets/octocat.png", octoConf);
+
         this.load.spritesheet("hover_flame", "/assets/hover_flame.png", {
             startFrame: 0,
             endFrame: 40,
@@ -47,6 +65,9 @@ export class MainScene extends Phaser.Scene {
     }
 
     create() {
+        this.tilebg = this.add.tileSprite(1000, 1000, 5000, 5000, "tilebg");
+        this.tilebg2 = this.add.tileSprite(1000, 1000, 5000, 5000, "tilebg2");
+
         this.anims.create({
             key: "slime1_idle",
             frames: this.anims.generateFrameNumbers("slime1", { start: 0, end: 3 }),
@@ -76,6 +97,7 @@ export class MainScene extends Phaser.Scene {
         this.party = [this.player, player2, player3];
 
         this.cameras.main.startFollow(this.player.container);
+        this.cameras.main.setFollowOffset(0, -80);
 
         const e = new Enemy(this, 450, 650, {
             key: "slime1",
@@ -85,12 +107,16 @@ export class MainScene extends Phaser.Scene {
     }
 
     update() {
+        this.tilebg.tilePositionX += 1;
+        this.tilebg.tilePositionY -= 2;
+        this.tilebg2.tilePositionX += 0.5;
+        this.tilebg.tilePositionY -= 1.2;
+
         if (this.battle) {
             this.cameras.main.zoom = helpers.lerp(this.cameras.main.zoom, 1.5, 0.02);
             this.battle.update();
         } else {
             this.cameras.main.zoom = helpers.lerp(this.cameras.main.zoom, 1, 0.02);
-            this.cameras.main.followOffset.y = helpers.lerp(this.cameras.main.followOffset.y, 0, 0.1);
             for (let e of this.enemies) {
                 if (helpers.dist(this.player.container, e) < 90) {
                     this.battle = new BattleSystem(this, {

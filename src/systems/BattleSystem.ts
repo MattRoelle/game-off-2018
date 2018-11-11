@@ -62,7 +62,6 @@ export class BattleSystem {
     }
 
     update() {
-        this.scene.cameras.main.followOffset.y = helpers.lerp(this.scene.cameras.main.followOffset.y, -70, 0.1);
         switch(this.state) {
             case BattleStates.GettingInFormation:
                 break;

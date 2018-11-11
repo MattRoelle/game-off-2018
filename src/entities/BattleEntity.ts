@@ -19,8 +19,12 @@ export class BattleStats {
 export interface BattleEntity {
     ax: number;
     ay: number;
+    aangle: number;
     isFriendly: boolean;
     formationXOffset: number;
     formationYOffset: number;
     stats: BattleStats;
+    hit(): void;
+    casting(): void;
+    reset(): void;
 }

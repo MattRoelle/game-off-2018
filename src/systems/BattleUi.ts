@@ -2,6 +2,7 @@ import { BattleEntity, BattleStats } from "../entities/BattleEntity";
 import { RadialUi } from "../entities/RadialUi";
 import { BattleSystem, BattleStates } from "./BattleSystem";
 import basicAttack from "./moves/basicAttack";
+import penTest from "./moves/penTest";
 
 export class BattleUi extends Phaser.GameObjects.Container {
     apMask: Phaser.GameObjects.Graphics;
@@ -58,9 +59,17 @@ export class BattleUi extends Phaser.GameObjects.Container {
                     }
                 },
                 {
-                    key: "ico_atk",
+                    key: "ico_def",
                     onSelect: () => {
                         basicAttack(this.scene, this.entity, this.bsys.info.groupB[0], () => {
+                            this.bsys.switchState(BattleStates.Active);
+                        });
+                    }
+                },
+                {
+                    key: "ico_pentest",
+                    onSelect: () => {
+                        penTest(this.scene, this.entity, this.bsys.info.groupB[0], () => {
                             this.bsys.switchState(BattleStates.Active);
                         });
                     }
