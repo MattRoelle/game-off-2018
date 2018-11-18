@@ -1,4 +1,5 @@
 import { BattleEntity } from "../../entities/BattleEntity";
+import helpers from "../../helpers";
 
 export default (scene: Phaser.Scene, entityA: BattleEntity, entityB: BattleEntity, onComplete: Function) => {
     const ogx = entityA.ax;
@@ -17,6 +18,8 @@ export default (scene: Phaser.Scene, entityA: BattleEntity, entityB: BattleEntit
         onComplete: () => {
             setTimeout(() => {
                 entityB.hit();
+                helpers.dmgNumbers(scene, entityB.ax, entityB.ay, 10);
+                entityB.stats.damage(10);
             }, 200);
             scene.tweens.add({
                 targets: entityA,

@@ -27,9 +27,14 @@ export default {
         }
 
         this.move(player, dx, dy);
+
+        if (player.followMove && helpers.dist(player.container, player.info.following.container) > 250) {
+            player.container.x = player.info.following.container.x;
+            player.container.y = player.info.following.container.y;
+        }
     },
 
-    move(player: Player, dx: number, dy: number) {
+    move(player: Player, dx: number, dy: number, retry?: boolean): boolean {
         dx = helpers.clamp(-1, 1, dx);
         dy = helpers.clamp(-1, 1, dy);
 
@@ -51,8 +56,27 @@ export default {
         if (player.info.isCom) f *= 0.92;
         if (player.info.isCom && player.distToFollow < 30) f *= 0.7;
 
+        const newX = player.container.x + Math.cos(theta)*f;
+        const newY = player.container.y + Math.sin(theta)*f;
 
-        player.container.x += Math.cos(theta)*f;
-        player.container.y += Math.sin(theta)*f;
+        let moveValid = true;
+        for(let p of player.mainScene.walkablePolygons) {
+            if (!PolyK.ContainsPoint(p, newX, newY)) {
+                moveValid = false;
+                break;
+            }
+        }
+
+        if (moveValid) {
+            player.container.x = newX;
+            player.container.y = newY;
+            return true;
+        } else if (!retry) {
+            if (!this.move(player, dx, 0, true)) {
+                this.move(player, 0, dy, true);
+            }
+        }
+
+        return false;
     }
 }

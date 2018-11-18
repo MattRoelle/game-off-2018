@@ -13,6 +13,7 @@ export class MainScene extends Phaser.Scene {
     rui: RadialUi;
     tilebg: Phaser.GameObjects.TileSprite;
     tilebg2: Phaser.GameObjects.TileSprite;
+    walkablePolygons: number[][];
 
     constructor() {
         super({
@@ -36,9 +37,11 @@ export class MainScene extends Phaser.Scene {
         this.load.image("pen_arrow2", "/assets/pen_arrow2.png");
         this.load.image("pen_arrow3", "/assets/pen_arrow3.png");
 
+        this.load.spritesheet("hit1", "/assets/hit1.png", { startFrame: 0, endFrame: 5, frameWidth: 20, frameHeight: 20 });
+
         const octoConf = {
             startFrame: 0,
-            endFrame: 1,
+            endFrame: 2,
             frameWidth: 40,
             frameHeight: 40
         };
@@ -69,6 +72,13 @@ export class MainScene extends Phaser.Scene {
         this.tilebg2 = this.add.tileSprite(1000, 1000, 5000, 5000, "tilebg2");
 
         this.anims.create({
+            key: "hit1_anim",
+            frames: this.anims.generateFrameNames("hit1",{ start: 0, end: 5}),
+            repeat: 0,
+            frameRate: 20
+        });
+
+        this.anims.create({
             key: "slime1_idle",
             frames: this.anims.generateFrameNumbers("slime1", { start: 0, end: 3 }),
             yoyo: true,
@@ -84,9 +94,27 @@ export class MainScene extends Phaser.Scene {
         const tilesetImg = map.addTilesetImage("tilemap", "tiles");
 
         for (let i = 0; i < map.layers.length; i++) {
-            const layer = map.layers[0];
+            const layer = map.layers[i];
             map.createStaticLayer(i, tilesetImg, layer.x, layer.y);
         }
+
+        this.walkablePolygons = [];
+        for(let objLayer of map.objects) {
+            if (objLayer.name == "collision") {
+                for(let obj of <any[]>objLayer.objects) {
+                    const verts = [];
+                    for(let vert of obj.polygon) {
+                        const vx = vert.x + obj.x;
+                        const vy = vert.y + obj.y;
+                        verts.push(vx);
+                        verts.push(vy);
+                    }
+                    this.walkablePolygons.push(verts);
+                }
+            }
+        }
+
+        console.log(this.walkablePolygons);
 
         this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
@@ -103,7 +131,11 @@ export class MainScene extends Phaser.Scene {
             key: "slime1",
         });
 
-        this.enemies = [e];
+        const e2 = new Enemy(this, 750, 250, {
+            key: "slime1",
+        });
+
+        this.enemies = [e, e2];
     }
 
     update() {
@@ -112,17 +144,23 @@ export class MainScene extends Phaser.Scene {
         this.tilebg2.tilePositionX += 0.5;
         this.tilebg.tilePositionY -= 1.2;
 
-        if (this.battle) {
+        if (!!this.battle) {
             this.cameras.main.zoom = helpers.lerp(this.cameras.main.zoom, 1.5, 0.02);
             this.battle.update();
         } else {
             this.cameras.main.zoom = helpers.lerp(this.cameras.main.zoom, 1, 0.02);
             for (let e of this.enemies) {
+                if (e.stats.dead) continue;
                 if (helpers.dist(this.player.container, e) < 90) {
                     this.battle = new BattleSystem(this, {
                         groupA: this.party,
                         groupB: [e]
-                    })
+                    }, () => {
+                        this.cameras.main.startFollow(this.player.container);
+                        this.battle.destroy();
+                        this.battle = null;
+                    });
+                    return;
                 }
             }
         }

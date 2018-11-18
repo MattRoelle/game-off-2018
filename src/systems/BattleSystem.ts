@@ -1,6 +1,6 @@
-import { BattleEntity } from "../entities/BattleEntity";
-import helpers from "../helpers";
-import { BattleUi } from "./BattleUi";
+    import { BattleEntity } from "../entities/BattleEntity";
+    import helpers from "../helpers";
+    import { BattleUi } from "./BattleUi";
 
 export interface BattleInfo {
     groupA: BattleEntity[];
@@ -11,6 +11,7 @@ export enum BattleStates {
     GettingInFormation = 0,
     Active = 1,
     InTurn = 2,
+    Victory = 3,
 }
 
 export class BattleSystem {
@@ -18,12 +19,8 @@ export class BattleSystem {
     allEntities: BattleEntity[];
     battleUis: BattleUi[] = [];
 
-    constructor(public scene: Phaser.Scene, public info: BattleInfo) {
+    constructor(public scene: Phaser.Scene, public info: BattleInfo, public victoryCallback: Function) {
         this.allEntities = info.groupA.concat(info.groupB);
-
-        for(let e of this.allEntities) {
-            e.stats.inBattle = true;
-        }
 
         const formationAnchor = info.groupA[0];
         for(let i = 1; i < info.groupA.length; i++) {
@@ -41,6 +38,12 @@ export class BattleSystem {
                 }
             });
         }
+
+        for(let entity of this.allEntities) {
+            entity.stats.inBattle = true;
+        }
+
+        scene.cameras.main.stopFollow();
     }
 
     switchState(state: BattleStates) {
@@ -58,7 +61,12 @@ export class BattleSystem {
             case BattleStates.InTurn:
                 break;
         }
+
         this.state = state;
+
+        if (state == BattleStates.Victory) {
+            this.victoryCallback();
+        }
     }
 
     update() {
@@ -68,23 +76,54 @@ export class BattleSystem {
             case BattleStates.Active:
                 for(let e of this.allEntities) {
                     e.stats.tick();
+
+                    if (e.stats.dead) {
+                        e.die();
+                        continue;
+                    }
+
                     if (e.stats.ap >= 1) {
                         if (e.isFriendly) {
                             const bui = this.battleUis.find(bui => bui.entity == e);
                             bui.openRadial();
+                        } else {
+                            e.aiPlayTurn(this.info.groupA, () => {
+                                this.switchState(BattleStates.Active);
+                            });
                         }
                         this.switchState(BattleStates.InTurn);
                         return;
                     }
                 }
+
+                const allEnemiesDead = !this.info.groupB.find(e => !e.stats.dead);
+
+                if (allEnemiesDead) {
+                    this.switchState(BattleStates.Victory);
+                    return;
+                }
+
                 for(let ui of this.battleUis) ui.update();
                 break;
             case BattleStates.InTurn:
                 break;
         }
 
+        if (this.state != BattleStates.Victory) {
+            for(let bui of this.battleUis) {
+                bui.update();
+            }
+        }
+    }
+
+    destroy() {
+        for(let e of this.allEntities) {
+            e.reset();
+            e.stats.inBattle = false;
+        }
+
         for(let bui of this.battleUis) {
-            bui.update();
+            bui.destroy();
         }
     }
 }

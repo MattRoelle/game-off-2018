@@ -82,6 +82,8 @@ export class BattleUi extends Phaser.GameObjects.Container {
     update() {
         super.update();
 
+        this.hpText.text = this.entity.stats.hp.toString();
+
         this.x = this.entity.ax;
         this.y = this.entity.ay - 50;
 

@@ -4,6 +4,10 @@ export class BattleStats {
     apRate: number;
     inBattle: boolean = false;
 
+    get dead(): boolean {
+        return this.hp <= 0;
+    }
+
     constructor() {
         this.hp = 99;
         this.ap = 0;
@@ -11,9 +15,15 @@ export class BattleStats {
     }
 
     tick() {
+        if (this.dead) return;
         this.ap += this.apRate;
         this.ap = Math.min(this.ap, 1);
     }
+
+    damage(n: number) {
+        this.hp -= n;
+    }
+    victoryCallback: Function;
 }
 
 export interface BattleEntity {
@@ -24,7 +34,9 @@ export interface BattleEntity {
     formationXOffset: number;
     formationYOffset: number;
     stats: BattleStats;
+    aiPlayTurn?(groupB: BattleEntity[], cb: Function): void;
     hit(): void;
+    die(): void;
     casting(): void;
     reset(): void;
 }

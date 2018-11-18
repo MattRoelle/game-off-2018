@@ -1,4 +1,5 @@
 import { BattleEntity, BattleStats } from "./BattleEntity";
+import basicAttack from "../systems/moves/basicAttack";
 
 export interface EnemyInfo {
     key: string;
@@ -19,14 +20,16 @@ export class Enemy extends Phaser.GameObjects.Sprite implements BattleEntity {
     formationXOffset: number;
     formationYOffset: number;
     stats: BattleStats = new BattleStats();
+    dead: boolean = false;
 
     constructor(scene: Phaser.Scene, x: number, y: number, public info: EnemyInfo) {
         super(scene, x, y, info.key)
         this.scene = scene;
         scene.add.existing(this);
+        this.stats.hp = 5;
         this.depth = 50;
         this.anims.play(info.key + "_idle");
-        this.stats.apRate = 0;
+        this.stats.apRate = 0.01;
     }
 
     preUpdate(t: number, delta: number) {
@@ -34,6 +37,7 @@ export class Enemy extends Phaser.GameObjects.Sprite implements BattleEntity {
     }
 
     hit(): void {
+        this.scene.cameras.main.shake(250, 0.01);
         const ogx = this.ax;
         this.scene.tweens.add({
             targets: this,
@@ -53,6 +57,24 @@ export class Enemy extends Phaser.GameObjects.Sprite implements BattleEntity {
                     }
                 });
             }
+        });
+    }
+
+    aiPlayTurn(groupB: BattleEntity[], cb: Function) {
+        basicAttack(this.scene, this, groupB[0], () => {
+            cb();
+        });
+    }
+
+    die() {
+        if (this.dead) return;
+        this.dead = true;
+
+        this.scene.tweens.add({
+            targets: this,
+            alpha: 0,
+            duration: 500,
+            ease: "Power2.easeInOut"
         });
     }
 }

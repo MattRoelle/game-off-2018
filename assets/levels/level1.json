@@ -48,9 +48,72 @@
          "width":80,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":9,
+         "name":"collision",
+         "objects":[
+                {
+                 "height":0,
+                 "id":5,
+                 "name":"",
+                 "polygon":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":190,
+                         "y":376
+                        }, 
+                        {
+                         "x":103,
+                         "y":379
+                        }, 
+                        {
+                         "x":227,
+                         "y":635
+                        }, 
+                        {
+                         "x":558,
+                         "y":635
+                        }, 
+                        {
+                         "x":429,
+                         "y":377
+                        }, 
+                        {
+                         "x":341,
+                         "y":378
+                        }, 
+                        {
+                         "x":200,
+                         "y":95
+                        }, 
+                        {
+                         "x":460,
+                         "y":96
+                        }, 
+                        {
+                         "x":410,
+                         "y":-3
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":145.666666666667,
+                 "y":164.666666666667
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":8,
- "nextobjectid":1,
+ "nextlayerid":10,
+ "nextobjectid":21,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.2.0",

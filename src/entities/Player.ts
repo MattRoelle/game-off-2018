@@ -2,6 +2,7 @@ import helpers from "../helpers";
 import { BattleEntity, BattleStats } from "./BattleEntity";
 import overworld from "./PlayerStates/overworld";
 import battle from "./PlayerStates/battle";
+import { MainScene } from "../scenes/MainScene";
 
 export interface PlayerInfo {
     following?: Player;
@@ -22,6 +23,9 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
     flying: boolean;
     followMove: boolean;
     isCasting: boolean;
+    dead: boolean = false;
+
+    public mainScene: MainScene;
 
     get aangle(): number { return this.container.angle; }
     set aangle(v: number) { this.container.angle = v; }
@@ -34,7 +38,7 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
     formationYOffset: number;
     stats: BattleStats = new BattleStats();
 
-    constructor(scene: Phaser.Scene, public info: PlayerInfo) {
+    constructor(scene: MainScene, public info: PlayerInfo) {
         super(scene, 0, 0, info.key, 0);
         scene.anims.create({
             key: "hover_flame",
@@ -42,13 +46,12 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
             frameRate: 60,
             repeat: -1
         });
-        this.scene = scene;
+        this.scene = <Phaser.Scene>scene;
+        this.mainScene = scene;
 
         this.shadow = scene.add.sprite(0, 0, "shadow");
 
         this.container = scene.add.container(300, 300);
-
-        if (this.info.key)
 
         this.container.depth = 100 - this.info.partyIdx;
 
@@ -132,7 +135,7 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
     }
 
     hit(): void {
-
+        this.scene.cameras.main.shake(250, 0.01);
     }
 
     casting(): void {
@@ -143,5 +146,19 @@ export class Player extends Phaser.GameObjects.Sprite implements BattleEntity {
     reset(): void {
         this.setTexture(this.texture.key, 0);
         this.isCasting = false;
+    }
+
+    die() {
+        if (this.dead) return;
+        this.dead = true;
+
+        this.setTexture(this.texture.key, 2);
+
+        this.scene.add.tween({
+            targets: this,
+            alpha: 0,
+            duration: 1000,
+            ease: "Power2.easeInOut"
+        });
     }
 }
